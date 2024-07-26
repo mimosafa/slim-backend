@@ -11,8 +11,16 @@ if (is_file(__DIR__ . '/../.env')) {
     Dotenv::createImmutable(__DIR__ . '/../')->load();
 }
 
-return (
-    function (): App {
+if (!function_exists('app')) {
+    function app(): App
+    {
+        /** @var App|null */
+        static $app;
+
+        if (isset($app)) {
+            return $app;
+        }
+
         $builder = new ContainerBuilder();
 
         /**
@@ -33,6 +41,9 @@ return (
         $routes = require __DIR__ . '/routes.php';
         $routes($app);
 
-        return $app;
+        return app();
     }
-)();
+} else {
+    throw new LogicException();
+}
+
